@@ -14,27 +14,37 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       redis:
-        image: redis
+        image: redis:7-alpine
         ports:
           - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248 # master
         with:
+          toolchain: stable
           components: rustfmt, clippy
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-
 
       - name: Check formatting
         run: cargo fmt --all -- --check
@@ -53,24 +63,39 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
+      fail-fast: true
       matrix:
         target:
           - x86_64-unknown-linux-gnu
           - aarch64-unknown-linux-gnu
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248 # master
         with:
-          targets: ${{ matrix.target }}
+          toolchain: stable
+          target: ${{ matrix.target }}
 
       - name: Install cross-compilation tools
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Cache dependencies
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-${{ matrix.target }}-cargo-
 
       - name: Build
         run: |
@@ -81,29 +106,34 @@ jobs:
           fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: lotabots-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/lotabots-cli
+          retention-days: 5
 
   deploy:
     name: Deploy
     needs: [test, build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: production
+    concurrency:
+      group: production_environment
+      cancel-in-progress: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
       - name: Download x86_64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: lotabots-x86_64-unknown-linux-gnu
           path: deploy/x86_64
 
       - name: Download aarch64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: lotabots-aarch64-unknown-linux-gnu
           path: deploy/aarch64
@@ -116,7 +146,7 @@ jobs:
           chmod +x deploy/aarch64/lotabots-cli
 
       - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
@@ -124,9 +154,10 @@ jobs:
           source: "deploy/*"
           target: "/opt/lotabots"
           strip_components: 1
+          overwrite: true
 
       - name: Restart service
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}

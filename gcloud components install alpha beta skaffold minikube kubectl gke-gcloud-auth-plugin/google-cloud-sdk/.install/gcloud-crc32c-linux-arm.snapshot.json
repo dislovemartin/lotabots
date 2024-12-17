@@ -1,0 +1,43 @@
+{
+  "components": [
+    {
+      "data": {
+        "contents_checksum": "39aa19b5b52f148daeed6c023eae051a3d3a73204f36bb1291e0ed893c0a3a04",
+        "source": "",
+        "type": "tar"
+      },
+      "dependencies": [
+        "gcloud-crc32c"
+      ],
+      "details": {
+        "description": "Command line tool that calculates CRC32C hashes on local files.",
+        "display_name": "Google Cloud CRC32C Hash Tool (Platform Specific)"
+      },
+      "gdu_only": false,
+      "id": "gcloud-crc32c-linux-arm",
+      "is_configuration": false,
+      "is_hidden": true,
+      "is_required": false,
+      "platform": {
+        "architectures": [
+          "arm"
+        ],
+        "operating_systems": [
+          "LINUX"
+        ]
+      },
+      "platform_required": false,
+      "version": {
+        "build_number": 20240712142834,
+        "version_string": "1.0.0"
+      }
+    }
+  ],
+  "revision": 20241206142025,
+  "schema_version": {
+    "no_update": false,
+    "url": "https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz",
+    "version": 3
+  },
+  "version": "503.0.0"
+}
