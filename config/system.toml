@@ -1,0 +1,44 @@
+[system]
+# System-wide configuration
+log_level = "info"
+threads = "auto"  # Will auto-detect optimal thread count
+process_niceness = -20  # Highest priority
+io_priority = "realtime"
+
+[memory]
+# Memory optimization based on available 490GB
+max_ram_usage_gb = 450  # Leave 40GB for system (more aggressive)
+buffer_size_mb = 2048   # 2GB buffer for I/O operations
+page_size = "2M"        # Use huge pages
+swappiness = 0          # Minimize swapping
+min_free_kb = 4194304   # Keep 4GB minimum free
+
+[gpu]
+# NVIDIA GPU configuration (97.8GB VRAM)
+enable_cuda = true
+memory_limit_gb = 94     # More aggressive VRAM usage
+cuda_streams = 8         # Increased parallel streams
+compute_mode = "exclusive_process"
+power_limit = "max"      # Maximum power limit
+memory_growth = "true"   # Allow memory growth
+cache_size_mb = 2048     # 2GB CUDA cache
+
+[optimization]
+batch_size = 64          # Increased batch size
+precision = "float16"    # Use half precision
+enable_tensor_cores = true
+enable_cuda_graphs = true
+enable_cudnn_benchmarks = true
+enable_fusion = true
+thread_pinning = true
+numa_aware = true
+
+[logging]
+performance_metrics = true
+gpu_metrics = true
+memory_metrics = true
+log_format = "json"
+metrics_interval_sec = 15  # More frequent monitoring
+detailed_gpu_metrics = true
+log_compression = true
+retention_days = 7

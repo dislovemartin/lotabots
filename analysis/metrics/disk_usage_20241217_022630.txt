@@ -1,0 +1,11 @@
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                               48G   44M   48G   1% /run
+efivarfs                           384K   16K  369K   4% /sys/firmware/efi/efivars
+/dev/mapper/ubuntu--vg-ubuntu--lv  877G   41G  792G   5% /
+tmpfs                              240G   64K  240G   1% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+/dev/nvme0n1p2                     2.0G  482M  1.4G  27% /boot
+/dev/md127                          11T  320G   11T   3% /data
+/dev/sdd                           3.5T  299G  3.2T   9% /lp-dev
+/dev/nvme0n1p1                     1.1G  6.4M  1.1G   1% /boot/efi
+tmpfs                               48G   64K   48G   1% /run/user/1000
