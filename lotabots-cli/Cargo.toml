@@ -1,0 +1,28 @@
+[package]
+name = "lotabots-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "CLI application for model quantization and WhatsApp bot"
+license.workspace = true
+
+[dependencies]
+lotabots-core = { path = "../lotabots-core" }
+lotabots-whatsapp = { path = "../lotabots-whatsapp" }
+lotabots-gemini = { path = "../lotabots-gemini", optional = true }
+
+async-trait.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+axum.workspace = true
+serde.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+redis.workspace = true
+clap.workspace = true
+dotenv.workspace = true
+
+[features]
+default = []
+gemini = ["lotabots-gemini"]
+experimental = ["gemini"]

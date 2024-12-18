@@ -1,0 +1,57 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
+{
+	"name": "Lotabots WhatsApp Development",
+	"image": "nvidia/cuda:12.3.1-devel-ubuntu22.04",
+	"features": {
+		"ghcr.io/devcontainers/features/rust:1": {
+			"version": "latest",
+			"profile": "complete"
+		},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/nvidia-cuda:1": {
+			"installCudnn": true
+		}
+	},
+	"runArgs": [
+		"--gpus",
+		"all",
+		"--shm-size",
+		"16gb"
+	],
+	"containerEnv": {
+		"RUST_LOG": "info,lotabots=debug",
+		"CUDA_VISIBLE_DEVICES": "0",
+		"RUST_BACKTRACE": "1"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",
+				"vadimcn.vscode-lldb",
+				"serayuzgur.crates",
+				"tamasfe.even-better-toml",
+				"eamodio.gitlens",
+				"github.copilot",
+				"github.copilot-chat"
+			],
+			"settings": {
+				"rust-analyzer.checkOnSave.command": "clippy",
+				"rust-analyzer.cargo.features": "all",
+				"rust-analyzer.procMacro.enable": true,
+				"rust-analyzer.cargo.loadOutDirsFromCheck": true,
+				"editor.formatOnSave": true
+			}
+		}
+	},
+	"postCreateCommand": "cargo build",
+	"remoteUser": "vscode",
+	"mounts": [
+		"source=${localEnv:HOME}/.cargo/registry,target=/usr/local/cargo/registry,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.cargo/git,target=/usr/local/cargo/git,type=bind,consistency=cached"
+	],
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+	"workspaceFolder": "/workspace"
+}

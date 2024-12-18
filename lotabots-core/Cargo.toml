@@ -1,0 +1,27 @@
+[package]
+name = "lotabots-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sysinfo = { workspace = true }
+reqwest = { workspace = true }
+
+# GPU dependencies
+cuda-runtime-sys = { version = "0.3.0-alpha.1", optional = true }
+hip-runtime-sys = { version = "0.1", optional = true }
+
+[features]
+default = []
+cuda = ["dep:cuda-runtime-sys"]
+rocm = ["dep:hip-runtime-sys"]

@@ -1,0 +1,19 @@
+[package]
+name = "lotabots-gemini"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Gemini AI integration for model quantization assistance"
+license.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+futures = "0.3"
+
+# Gemini-specific dependencies
+google-generative-ai-rs = "0.3.2"
+serde_json = "1.0.133" 

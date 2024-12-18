@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  whatsapp:
+    build:
+      context: .
+      dockerfile: ./lotabots-whatsapp/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${WHATSAPP_PORT:-3000}:3000"
+    environment:
+      - RUST_LOG=${RUST_LOG:-info}
+      - REDIS_URL=redis://redis:6379
+      - CONFIG_DIR=/etc/lotabots/config
+      - DATA_DIR=/var/lib/lotabots/data
+    volumes:
+      - ./config:/etc/lotabots/config:ro
+      - whatsapp-data:/var/lib/lotabots/data
+    depends_on:
+      - redis
+    networks:
+      - lotabots-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - lotabots-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  whatsapp-data:
+    name: lotabots-whatsapp-data
+  redis-data:
+    name: lotabots-redis-data
+
+networks:
+  lotabots-net:
+    name: lotabots-network
+    driver: bridge
